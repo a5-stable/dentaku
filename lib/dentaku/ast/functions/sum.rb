@@ -8,5 +8,7 @@ Dentaku::AST::Function.register(:sum, :numeric, ->(*args) {
     ), 'SUM() requires at least one argument'
   end
 
+  # 0を起点に足し算してくれる
+  # SUMの本体
   args.flatten.map { |arg| Dentaku::AST::Function.numeric(arg) }.reduce(0, :+)
 })

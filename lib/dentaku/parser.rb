@@ -37,24 +37,26 @@ module Dentaku
     end
 
     def consume(count = 2)
-      operator = operations.pop
-      operator.peek(output)
 
-      args_size = operator.arity || count
-      min_size = operator.arity || operator.min_param_count || count
+      operator = operations.pop
+      operator.peek(output) # ?
+
+      args_size = operator.arity || count # ?
+      min_size = operator.arity || operator.min_param_count || count # 関数それぞれで決まっている最低数 デフォルトは2っぽい（通常の足し算とかを想定）
       max_size = operator.arity || operator.max_param_count || count
 
+      # バリデーション
       if output.length < min_size || args_size < min_size
         fail! :too_few_operands, operator: operator, expect: min_size, actual: output.length
       end
-
       if output.length > max_size && operations.empty? || args_size > max_size
         fail! :too_many_operands, operator: operator, expect: max_size, actual: output.length
       end
-
       fail! :invalid_statement if output.size < args_size
-      args = Array.new(args_size) { output.pop }.reverse
 
+      # outputから一旦取り出して、args_sizeできる？
+      # 元々のoutput配列をoperator（Function::Sum）の配属にして、outputに戻す
+      args = Array.new(args_size) { output.pop }.reverse
       output.push operator.new(*args)
     rescue ::ArgumentError => e
       raise Dentaku::ArgumentError, e.message
@@ -66,6 +68,7 @@ module Dentaku
       return AST::Nil.new if input.empty?
 
       while token = input.shift
+
         case token.category
         when :datetime
           output.push AST::DateTime.new(token)
@@ -291,6 +294,14 @@ module Dentaku
         fail! :invalid_statement
       end
 
+  #     [#<Dentaku::AST::Function::Sum:0x00007fdd1fa7b5f8
+  # @args=
+  # [#<Dentaku::AST::Numeric:0x00007fdd1fa7b850 @type=:numeric, @value=1>,
+  #  #<Dentaku::AST::Numeric:0x00007fdd1fa7b828 @type=:numeric, @value=1>,
+  #  #<Dentaku::AST::Numeric:0x00007fdd1fa7b800 @type=:numeric, @value=2>,
+  #  #<Dentaku::AST::Numeric:0x00007fdd1fa7b7d8 @type=:numeric, @value=3>,
+  #  #<Dentaku::AST::Numeric:0x00007fdd1fa7b7b0 @type=:numeric, @value=5>,
+  #  #<Dentaku::AST::Numeric:0x00007fdd1fa7b788 @type=:numeric, @value=23>]>]
       output.first
     end
 

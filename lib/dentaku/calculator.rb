@@ -56,14 +56,41 @@ module Dentaku
         evaluate(e, data, &block)
       } if expression.is_a? Array
 
+# ast(node)
+#  #<Dentaku::AST::Function::Sum:0x00007fa66338f8e0
+#  @args=
+#  [#<Dentaku::AST::Numeric:0x00007fa66338ff48 @type=:numeric, @value=1>,
+#   #<Dentaku::AST::Numeric:0x00007fa66338fef8 @type=:numeric, @value=1>,
+#   #<Dentaku::AST::Numeric:0x00007fa66338fed0 @type=:numeric, @value=2>,
+#   #<Dentaku::AST::Numeric:0x00007fa66338fe80 @type=:numeric, @value=3>,
+#   #<Dentaku::AST::Numeric:0x00007fa66338fe58 @type=:numeric, @value=5>,
+#   #<Dentaku::AST::Numeric:0x00007fa66338fe08 @type=:numeric, @value=23>]>
+
+      # ast & valueで全てが行われている
       store(data) do
         node = expression
-        node = ast(node) unless node.is_a?(AST::Node)
+        # 1.ast
+        node = ast(node) unless node.is_a?(AST::Node) # falsy
+
+        # nodeにFUNCTION + outputが集約されている
+        # node.class #=> Dentaku::AST::Function::Sum
+
+        # 何かのバリデーションをしているっぽいけどよくわからない
+        # no value provided for variables:を判定?
         unbound = node.dependencies(memory)
-        unless unbound.empty?
+        unless unbound.empty? # ???
           raise UnboundVariableError.new(unbound),
                 "no value provided for variables: #{unbound.uniq.join(', ')}"
         end
+
+        # 2.value
+        # function_registry.rb L49
+        # def value(context = {})
+        #   args = @args.map { |a| a.value(context) }
+        #   self.class.implementation.call(*args)
+        # end
+        # argsのvalueを集めてきて、callしてラムダ = 関数の本体を実行
+
         node.value(memory)
       end
     end
@@ -99,7 +126,26 @@ module Dentaku
           aliases: aliases
         }
 
+        #<Dentaku::Token:0x00007fddb626c780 @category=:function, @raw_value="SUM", @value=:sum>,
+        #<Dentaku::Token:0x00007fddb626c730 @category=:grouping, @raw_value="(", @value=:open>,
+        #<Dentaku::Token:0x00007fddb626c398 @category=:numeric, @raw_value="1", @value=1>,
+        #<Dentaku::Token:0x00007fddb6277dd8 @category=:grouping, @raw_value=",", @value=:comma>,
+        #<Dentaku::Token:0x00007fddb6277838 @category=:numeric, @raw_value="1", @value=1>,
+        #<Dentaku::Token:0x00007fddb62772e8 @category=:grouping, @raw_value=",", @value=:comma>,
+        #<Dentaku::Token:0x00007fddb6276d48 @category=:numeric, @raw_value="2", @value=2>,
+        #<Dentaku::Token:0x00007fddb62767f8 @category=:grouping, @raw_value=",", @value=:comma>,
+        #<Dentaku::Token:0x00007fddb6276258 @category=:numeric, @raw_value="3", @value=3>,
+        #<Dentaku::Token:0x00007fddb6275d08 @category=:grouping, @raw_value=",", @value=:comma>,
+        #<Dentaku::Token:0x00007fddb6275768 @category=:numeric, @raw_value="5", @value=5>,
+        #<Dentaku::Token:0x00007fddb6275218 @category=:grouping, @raw_value=",", @value=:comma>,
+        #<Dentaku::Token:0x00007fddb6274c78 @category=:numeric, @raw_value="23", @value=23>,
+        #<Dentaku::Token:0x00007fddb6274728 @category=:grouping, @raw_value=")", @value=:close>]
+
+        # astの根幹はtokenize + parse
         tokens = tokenizer.tokenize(expression, options)
+
+        # tap
+        # parse
         Parser.new(tokens, options).parse.tap do |node|
           @ast_cache[expression] = node if cache_ast?
         end
