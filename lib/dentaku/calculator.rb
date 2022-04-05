@@ -131,14 +131,6 @@ module Dentaku
         #<Dentaku::Token:0x00007fddb626c398 @category=:numeric, @raw_value="1", @value=1>,
         #<Dentaku::Token:0x00007fddb6277dd8 @category=:grouping, @raw_value=",", @value=:comma>,
         #<Dentaku::Token:0x00007fddb6277838 @category=:numeric, @raw_value="1", @value=1>,
-        #<Dentaku::Token:0x00007fddb62772e8 @category=:grouping, @raw_value=",", @value=:comma>,
-        #<Dentaku::Token:0x00007fddb6276d48 @category=:numeric, @raw_value="2", @value=2>,
-        #<Dentaku::Token:0x00007fddb62767f8 @category=:grouping, @raw_value=",", @value=:comma>,
-        #<Dentaku::Token:0x00007fddb6276258 @category=:numeric, @raw_value="3", @value=3>,
-        #<Dentaku::Token:0x00007fddb6275d08 @category=:grouping, @raw_value=",", @value=:comma>,
-        #<Dentaku::Token:0x00007fddb6275768 @category=:numeric, @raw_value="5", @value=5>,
-        #<Dentaku::Token:0x00007fddb6275218 @category=:grouping, @raw_value=",", @value=:comma>,
-        #<Dentaku::Token:0x00007fddb6274c78 @category=:numeric, @raw_value="23", @value=23>,
         #<Dentaku::Token:0x00007fddb6274728 @category=:grouping, @raw_value=")", @value=:close>]
 
         # astの根幹はtokenize + parse
