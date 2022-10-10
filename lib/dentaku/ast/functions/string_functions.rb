@@ -58,6 +58,8 @@ module Dentaku
           negative_argument_failure('RIGHT') if length < 0
           string[length * -1, length] || string
         end
+        # Dentaku::Calculator.new.ast("()")
+
       end
 
       class Mid < Base
